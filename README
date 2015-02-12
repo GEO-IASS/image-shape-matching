@@ -1,0 +1,12 @@
+Image Shape Matching
+
+Tao Du
+taodu@stanford.edu
+Feb 11, 2015
+
+src/: source codes.
+  - src/cpp/: cpp codes, if necessary.
+
+data/: images and shapes.
+  - data/image/: 2D images.
+  - data/shape/: 3D shapes.
