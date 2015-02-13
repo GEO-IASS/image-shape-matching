@@ -2,7 +2,7 @@
 % taodu@stanford.edu
 % Feb 12, 2015
 
-% Test renderObj. Especially 
+% Test renderObj. Incidentally, it also tests model2Image.
 % Clear.
 clear all; clc;
 
@@ -46,32 +46,20 @@ T = M2V(1 : 3, 4);
 R = V2P * R;
 T = V2P * T;
 
-% Consider the upper right corner in the cube. The expected value in the
-% image coordinates should be (600, 120).
-% Point in the model coordinates.
-pModel = [-0.5; 0.5; 0.5];
-pImage = R * pModel + T;
-pImage = pImage / pImage(end);
-fprintf('The upper right corner = \n');
-disp(pImage');
+% Consider the four corners of the cube, and their expected pixel values:
+% Upper right: (600, 120).
+% Upper left: (360, 120).
+% Lower left: (360, 360).
+% Lower right: (600, 360).
+pModel = [-0.5 0.5 0.5; 0.5 0.5 0.5; 0.5 -0.5 0.5; -0.5 -0.5 0.5];
+pImage = model2Image(pModel, M2V, V2P);
 
-% The upper left corner: (360, 120).
-pModel = [0.5; 0.5; 0.5];
-pImage = R * pModel + T;
-pImage = pImage / pImage(end);
-fprintf('The upper left corner = \n');
-disp(pImage');
-
-% The lower left corner: (360, 360).
-pModel = [0.5; -0.5; 0.5];
-pImage = R * pModel + T;
-pImage = pImage / pImage(end);
-fprintf('The lower left corner = \n');
-disp(pImage');
-
-% The lower right corner: (600, 360).
-pModel = [-0.5; -0.5; 0.5];
-pImage = R * pModel + T;
-pImage = pImage / pImage(end);
-fprintf('The lower right corner = \n');
-disp(pImage');
+% Output.
+fprintf('The upper right corner((600, 120) expected) = \n');
+disp(pImage(1, :));
+fprintf('The upper left corner((360, 120) expected) = \n');
+disp(pImage(2, :));
+fprintf('The lower left corner((360, 360) expected) = \n');
+disp(pImage(3, :));
+fprintf('The lower right corner((600, 360) expected) = \n');
+disp(pImage(4, :));
