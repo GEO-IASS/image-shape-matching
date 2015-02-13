@@ -13,6 +13,6 @@ Top right: (w, 0).
 Lower left: (0, h).
 Lower right: (w, h).
 
-Ginput coordinates: coordinates used when we call [x, y] = ginput. This is almost the same as the image coordinates, except that the origin is shifted by (0.5, 0.5). i.e., the origin of the image coordinates is at (0.5, 0.5) in the ginput coordinates. 
+Ginput coordinates: coordinates used when we call [x, y] = ginput. This is almost the same as the image coordinates, except that the origin is shifted by (0.5, 0.5). i.e., the origin of the image coordinates is at (0.5, 0.5) in the ginput coordinates. However, the results of ginput may be clamped already, so it is unclear how to deal with it correctly. In our implementation, we will first locate the pixel when ginput is called, then simply use the center of the pixel.
 
 Pixel coordinates: A 2D coordinates with only integer values (i, j), where i is the row number and j is the column number. The top left pixel (1, 1) covers the [0, 1) x [0, 1) square in the image coordinates. To access the pixel (i, j), you can call I(i, j) where I is from imread or similar functions.
