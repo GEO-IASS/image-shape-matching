@@ -19,63 +19,52 @@ m = size(F, 1);
 % Normalize d.
 d = d / norm(d);
 
-% Initialize p, faceId and bc.
-p = [0 0 0]';
-faceId = 0;
-bc = [0 0 0]';
-% T is the parameter in the line: p = o + T * d.
-T = inf;
+% Extract vertices.
+V1 = V(F(:, 1), :)';
+V2 = V(F(:, 2), :)';
+V3 = V(F(:, 3), :)';
 
-% Loop over all the faces.
-for i = 1 : m
-  % Extract v1, v2 and v3.
-  v = V(F(i, :), :);
-  v1 = v(1, :)';
-  v2 = v(2, :)';
-  v3 = v(3, :)';
+% Compute the normal for each triangle.
+N = cross(V2 - V1, V3 - V2);
+N = bsxfun(@rdivide, N, sqrt(dot(N, N, 1)));
 
-  % Compute the normal.
-  n = cross(v2 - v1, v3 - v2);
-  n = n / norm(n);
+% If C is almost zero, then the line and the plane are parallel.
+C = d' * N;
 
-  % Determine whether the line is parallel with the plane.
-  c = d' * n;
-  if abs(c) < 1e-4
-    continue;
-  end
+% (o + t * d - v1) * n = 0.
+% (o - v1) * n + t * (d * n) = 0.
+% ct + (o - v1) * n = 0.
+T = bsxfun(@rdivide, dot(bsxfun(@minus, o, V1), N, 1), -C);
 
-  % (o + t * d - v1) * n = 0.
-  % (o - v1) * n + t * (d * n) = 0.
-  % ct + (o - v1) * n = 0.
-  t = (o - v1)' * n / -c;
-  if t <= 0 || t >= T
-    continue;
-  end
+Q = bsxfun(@plus, o, bsxfun(@times, T, d));
+U1 = V1 - Q;
+U2 = V2 - Q;
+U3 = V3 - Q;
 
-  % Test whether p is inside the triangle.
-  q = o + t * d;
-  u1 = v1 - q;
-  u2 = v2 - q;
-  u3 = v3 - q;
-  % Compute the barycentric coordinates.
-  w1 = cross(u2, u3)' * n;
-  w2 = cross(u3, u1)' * n;
-  w3 = cross(u1, u2)' * n;
-  
-  % Normalization.
-  w = w1 + w2 + w3;
-  w1 = w1 / w; w2 = w2 / w; w3 = w3 / w;
+% Compute the barycentric coordinates.
+W1 = dot(cross(U2, U3), N, 1);
+W2 = dot(cross(U3, U1), N, 1);
+W3 = dot(cross(U1, U2), N, 1);
 
-  % If any w is negative, q is outside the triangle.
-  if w1 < 0 || w2 < 0 || w3 < 0
-    continue;
-  end
+% Normalization.
+W = W1 + W2 + W3;
+W1 = W1 ./ W;
+W2 = W2 ./ W;
+W3 = W3 ./ W;
 
-  % Finally we find a valid intersection point.
-  T = t;
-  p = q;
-  faceId = i;
-  bc = [w1; w2; w3];
+% If the line and the plane are parallel, or T is negative, or T is
+% positive but any of W1, W2, W3 is negative, set T to be inf.
+T(abs(C) < 1e-4 | T < 0 | W1 < 0 | W2 < 0 | W3 < 0) = inf;
+
+% Now the min T is the solution.
+[t, faceId] = min(T);
+if isinf(t)
+  p = [0 0 0]';
+  faceId = 0;
+  bc = [0 0 0]';
+else
+  p = o + t * d;
+  bc = [W1(faceId); W2(faceId); W3(faceId)];
 end
 
 end
