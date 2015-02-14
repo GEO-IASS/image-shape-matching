@@ -2,10 +2,10 @@ function [ P ] = model2Image( V, model2View, view2Projection )
 % Tao Du
 % taodu@stanford.edu
 % Feb 13, 2015
-
+%
 % Given vertices in the model space, as well as transform matrices, compute
 % the image coordinates.
-
+%
 % Input: V: a n x 3 matrix. The output of readObj.
 %        model2View, view2Projection: transformation matrices. The output
 %                                     of renderObj.

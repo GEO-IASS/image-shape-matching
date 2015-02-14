@@ -2,7 +2,7 @@ function [ V ] = alignObj( V )
 % Tao Du
 % taodu@stanford.edu
 % Feb 11, 2015
-
+%
 % Given V, set its center at the origin, and rotate it by PCA.
 % Input, output: V. n x 3 matrix from readObj.
 

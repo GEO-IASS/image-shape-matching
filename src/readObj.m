@@ -2,7 +2,7 @@ function [ V, F ] = readObj( fileName )
 % Tao Du
 % taodu@stanford.edu
 % Feb 11, 2015
-
+%
 % Extract vertices and faces from .obj files. Assume the file format is:
 % All the vertices:
 % v 1 2 3

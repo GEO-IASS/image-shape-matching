@@ -3,7 +3,7 @@ function [ featurePixel, featureVertex, featureVertexId ] = ...
 % Tao Du
 % taodu@stanford.edu
 % Feb 11, 2015
-
+%
 % Select feature points from both images and 3D shapes.
 % Input: I: an image.
 %        V, F: vertices and faces. Output from readObj.

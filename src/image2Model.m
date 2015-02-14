@@ -2,11 +2,11 @@ function [ V ] = image2Model( P, model2View, view2Projection )
 % Tao Du
 % taodu@stanford.edu
 % Feb 13, 2015
-
+%
 % Given points in the image coordinates, as well as transform matrices,
 % convert it back to the model(world) coordinates. Consider it as the
 % inverse of model2Image.
-
+%
 % Input: P: n x 2 matrix.
 %        model2View, view2Projection: transform matrices from renderObj.
 % Output: V: n x 3 matrix.

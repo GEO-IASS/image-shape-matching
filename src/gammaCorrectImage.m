@@ -2,7 +2,7 @@ function [ I ] = gammaCorrectImage( I, gamma )
 % Tao Du
 % taodu@stanford.edu
 % Feb 12, 2015
-
+%
 % Do gamma correction for image I.
 % Input: I: a height x width x 3 image.
 %        gamma: a scalar, typically 2.2.

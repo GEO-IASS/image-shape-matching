@@ -2,10 +2,10 @@ function [ P ] = ginput2Image( P )
 % Tao Du
 % taodu@stanford.edu
 % Feb 13, 2015
-
+%
 % Compute the center of the pixels selected by ginput, in image
 % coordinates.
-
+%
 % Input: P: a n x 2 matrix. The direct output of ginput.
 % Outut: P: a n x 2 matrix.
 

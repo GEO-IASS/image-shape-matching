@@ -3,7 +3,7 @@ function [ I, model2View, view2Projection ] = renderObj( V, F, ...
 % Tao Du
 % taodu@stanford.edu
 % Feb 12, 2015
-
+%
 % Given a object (V, F), render it with given camera position and light
 % position. It generates a temp folder containg the pbrt script and the
 % image, read the image from file, and finally delete the temp folder.
