@@ -16,9 +16,9 @@ function [ I, model2View, view2Projection ] = renderObj( V, F, ...
 %        cameraUp: a 3 x 1 column vector. Representing the up direction of
 %                  our camera. 
 %        fov: a scalar in degree.
-%        lightPos: a 3 x 1 column vector. Representing a point light in the
-%                  world coordinates.
-%        lightColor: a 3 x 1 column vector between [0, 1].
+%        lightPos: a 3 x k column vector. Representing k point lights in
+%                  the world coordinates.
+%        lightColor: a 3 x k column vector between [0, 1].
 % Output: I: a imageSize(1) x imageSize(2) x 3 image.
 %         model2View: a 4 x 4 matrix. Given a 3D point p in the model
 %                     coordinates, model2View * p gives its coordinates in
@@ -55,10 +55,17 @@ camera = ['LookAt ', num2str(cameraPos'), ' ', ...
 context = [context camera];
 
 % Light property.
-light = ['AttributeBegin\n', ...
-         'LightSource "point" "point from" ', mat2str(lightPos'), ...
-         ' "rgb I" ', mat2str(lightColor'), '\n', ...
-         'AttributeEnd\n\n'];
+% Get the number of lights.
+k = size(lightPos, 2);
+light = [];
+for i = 1 : k
+  light = [light, ...
+           'AttributeBegin\n', ...
+           'LightSource "point" "point from" ', ...
+           mat2str(lightPos(:, i)'), ...
+           ' "rgb I" ', mat2str(lightColor(:, i)'), '\n', ...
+           'AttributeEnd\n\n'];
+end
 context = [context 'WorldBegin\n\n' light];
 
 % shape property. Note that the indices in PBRT start from 0 not 1.
