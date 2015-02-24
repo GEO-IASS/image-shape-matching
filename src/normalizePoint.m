@@ -8,7 +8,8 @@ function [ P, Y ] = normalizePoint( X )
 %
 % Input: X: n x k matrix(k = 2 or 3). Each row is a point.
 % Output: P: (k + 1) x (k + 1) matrix.
-%         Y: n x k matrix.
+%         Y: n x k matrix, which satisfies:
+%            [Y ones(n, 1)]' = P * [X ones(n, 1)]'.
 
 % Get the dimension of X.
 k = size(X, 2);

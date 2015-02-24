@@ -1,5 +1,5 @@
-function [ rms ] = evaluateHomography( M2V, V2P, ...
-                                       featureImage, featureVertex )
+function [ rms, pImage ] = evaluateHomography( M2V, V2P, featureImage, ...
+                                               featureVertex )
 % Tao Du
 % taodu@stanford.edu
 % Feb 16, 2015
@@ -16,6 +16,9 @@ function [ rms ] = evaluateHomography( M2V, V2P, ...
 %                       shape.
 % Output: rms: the root-mean-square error between V2P * M2V * featureVertex
 %              and featureImage.
+%         pImage: n x 2 matrix. It means the projected featureImage. The
+%                 rms is computed based on the difference between
+%                 featureImage and pImage.
 
 % Transform featureVertex into camera space.
 vCamera = bsxfun(@plus, M2V(1 : 3, 1 : 3) * featureVertex', M2V(1 : 3, 4));
@@ -25,10 +28,10 @@ vImage = V2P * vCamera;
 
 % Divide out the last dimension.
 vImage = bsxfun(@rdivide, vImage, vImage(end, :));
-vImage = vImage(1 : end - 1, :);
+pImage = vImage(1 : end - 1, :)';
 
 % Compute the rms error.
-rms = sqrt(mean(sum((vImage - featureImage').^2, 1)));
+rms = sqrt(mean(sum((pImage - featureImage).^2, 2)));
 
 end
 

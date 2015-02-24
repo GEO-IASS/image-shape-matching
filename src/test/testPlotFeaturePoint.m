@@ -24,3 +24,14 @@ c = rand(k, 3);
 % Plot the image.
 I = plotFeaturePoint(I, p, c);
 imshow(I);
+
+%% Test with a single color.
+% Call ginput to select k pixels.
+p = image2Pixel(ginput2Image(ginput(k)));
+
+% Generate random colors.
+c = rand(1, 3);
+
+% Plot the image.
+I = plotFeaturePoint(I, p, c);
+imshow(I);
