@@ -1,0 +1,259 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Include other packages here, before hyperref.
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\usepackage[breaklinks=true,bookmarks=false]{hyperref}
+
+\cvprfinalcopy % *** Uncomment this line for the final submission
+
+\def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+%\ifcvprfinal\pagestyle{empty}\fi
+\setcounter{page}{1}
+\begin{document}
+
+%%%%%%%%% TITLE
+\title{\LaTeX\ Author Guidelines for CVPR Proceedings}
+
+\author{Tao Du\\
+Stanford University\\
+{\tt\small taodu@stanford.edu}
+% For a paper whose authors are all at the same institution,
+% omit the following lines up until the closing ``}''.
+% Additional authors and addresses can be added with ``\and'',
+% just like the second author.
+% To save space, use either the email address or home page, not both
+}
+
+\maketitle
+%\thispagestyle{empty}
+
+%%%%%%%%% ABSTRACT
+\begin{abstract}
+\end{abstract}
+
+%%%%%%%%% BODY TEXT
+\section{Introduction}
+
+%------------------------------------------------------------------------
+\section{Related Work}
+
+%------------------------------------------------------------------------
+\section{Shape Deformation}
+
+%------------------------------------------------------------------------
+\section{Optimization Algorithm}
+
+\subsection{Optimizing homography}
+
+\noindent
+Given $n$ pairs of correspondent points $\mathbf{p}_i\in\mathcal{R}^3$ and $\mathbf{q}_i\in\mathcal{R}^2$, $i=1,2,\cdots, n$, we want to fit $\mathbf{M}\in\mathcal{R}^{3\times 4}$ such that
+\begin{equation}
+\mathbf{q}_i=s_i\mathbf{M}\left[
+\begin{array}{c}
+\mathbf{p}_i\\
+1
+\end{array}
+\right ]
+\end{equation}
+or equivalently
+\begin{equation}
+\begin{split}
+&m_{11}p_{i1}+m_{12}p_{i2}+m_{13}p_{i3}+m_{14}\\
+=&q_1(m_{31}p_{i1}+m_{32}p_{i2}+m_{33}p_{i3}+m_{34})\\
+&m_{21}p_{i1}+m_{22}p_{i2}+m_{23}p_{i3}+m_{24}\\
+=&q_2(m_{31}p_{i1}+m_{32}p_{i2}+m_{33}p_{i3}+m_{34})
+\end{split}
+\end{equation}
+As a result, if we reshape $\mathbf{M}$ as a column vector $\mathbf{m}$, we can fit $\mathbf{m}$ by solving the following least square problem:
+\begin{equation}
+\begin{split}
+\min_{\mathbf{m}}&\quad \|\mathbf{Am}\|_2^2\\
+s.t.&\quad \|\mathbf{m}\|=1
+\end{split}
+\end{equation}
+Here $\mathbf{A}\in\mathcal{R}^{2n\times 12}$. The optimal $\mathbf{m}$ can be found analytically by SVD.
+
+\subsection{Optimizing intrinsic and extrinsic parameters}
+
+\noindent
+Once $\mathbf{M}$ is found, we will decompose $\mathbf{M}=\lambda\mathbf{K[R,t]}$. Here we borrow the idea from Zhang~\cite{zhang2000flexible} to fit both the camera matrix $\mathbf{K}$, the rotation matrix $\mathbf{R}$ and the translation vector $\mathbf{t}$. We use $\mathbf{m}_i$ to represent the $i$-th column in $\mathbf{M}$.
+
+The camera matrix $\mathbf{K}$ is an upper triangular matrix:
+\begin{equation}
+\mathbf{K}=\left [
+\begin{array}{ccc}
+f & 0 & x \\
+0 & f & y \\
+0 & 0 & 1
+\end{array}
+\right ]
+\end{equation}
+Note that we assume the camera does not have any distortion, and the aspect ratio is 1. Both assumptions are reasonable: if we allow $\mathbf{K}_{12}\neq 0$, or if we allow $\mathbf{K}_{11}\neq\mathbf{K}_{12}$, they will absorb the effects of rotation and scaling, which should actually be explained by the shape deformation. Once $\mathbf{K}$ is determined, $\mathbf{t}$ can be easily solved by $\mathbf{t} = \mathbf{K}^{-1}\mathbf{m}_4$. So the main challenge is to solve $\mathbf{K}$ and $\mathbf{R}$. If we use $\mathbf{r}_i$ to denote the $i$-th column in $\mathbf{R}$, we will have:
+\begin{equation}
+\begin{split}
+\lambda\mathbf{K}\mathbf{r}_1=&\mathbf{m}_1\\
+\lambda\mathbf{K}\mathbf{r}_2=&\mathbf{m}_2\\
+\lambda\mathbf{K}\mathbf{r}_3=&\mathbf{m}_3\\
+\mathbf{r}_1=&\lambda^{-1}\mathbf{K}^{-1}\mathbf{m}_1\\
+\mathbf{r}_2=&\lambda^{-1}\mathbf{K}^{-1}\mathbf{m}_2\\
+\mathbf{r}_3=&\lambda^{-1}\mathbf{K}^{-1}\mathbf{m}_3\\
+\end{split}
+\end{equation}
+For any $i\neq j$, we have the constraint $\mathbf{r}_i^\top\mathbf{r}_j=0$:
+\begin{equation}
+\begin{split}
+\mathbf{m}_1^\top\mathbf{K}^{-\top}\mathbf{K}^{-1}\mathbf{m}_2&=0\\
+\mathbf{m}_1^\top\mathbf{K}^{-\top}\mathbf{K}^{-1}\mathbf{m}_3&=0\\
+\mathbf{m}_2^\top\mathbf{K}^{-\top}\mathbf{K}^{-1}\mathbf{m}_3&=0\\
+\end{split}
+\end{equation}
+Moreover, $\mathbf{r}_i$ has the same length:
+\begin{equation}
+\begin{split}
+\mathbf{m}_1^\top\mathbf{K}^{-\top}\mathbf{K}^{-1}\mathbf{m}_1&=\mathbf{m}_2^\top\mathbf{K}^{-\top}\mathbf{K}^{-1}\mathbf{m}_2\\
+\mathbf{m}_2^\top\mathbf{K}^{-\top}\mathbf{K}^{-1}\mathbf{m}_2&=\mathbf{m}_3^\top\mathbf{K}^{-\top}\mathbf{K}^{-1}\mathbf{m}_3\\
+\end{split}
+\end{equation}
+All the constraints contain $\mathbf{K}^{-\top}\mathbf{K}^{-1}$. Note that $\mathbf{K}^{-1}$ is
+\begin{equation}
+\mathbf{K}^{-1}=\left [
+\begin{array}{ccc}
+\frac{1}{f} & 0 & -\frac{x}{f} \\
+0 & \frac{1}{f} & -\frac{y}{f} \\
+0 & 0 & 1
+\end{array}
+\right ]
+\end{equation}
+So we can define
+\begin{equation}
+\begin{split}
+\mathbf{B}=&\mathbf{K}^{-\top}\mathbf{K}^{-1}\\
+=&\left [
+\begin{array}{ccc}
+\frac{1}{f} & 0 & 0 \\
+0 & \frac{1}{f} & 0 \\
+-\frac{x}{f} & -\frac{y}{f} & 1
+\end{array}
+\right ]
+\left [
+\begin{array}{ccc}
+\frac{1}{f} & 0 & -\frac{x}{f} \\
+0 & \frac{1}{f} & -\frac{y}{f} \\
+0 & 0 & 1
+\end{array}
+\right ]\\
+=&\left [
+\begin{array}{ccc}
+\frac{1}{f^2} & 0 & -\frac{x}{f^2} \\
+0 & \frac{1}{f^2} & -\frac{y}{f^2} \\
+-\frac{x}{f^2} & -\frac{y}{f^2} & \frac{x^2+y^2}{f^2} + 1
+\end{array}
+\right ]\\
+=&\left [
+\begin{array}{ccc}
+B_{11} & 0 & B_{13} \\
+0 & B_{11} & B_{23} \\
+B_{13} & B_{23} & B_{33}
+\end{array}
+\right ]
+\end{split}
+\end{equation}
+Since $B$ is symmetric, it only contains $4$ variables. Now for any $i$ and $j$, we can rewrite the constraints as:
+\begin{equation}
+\begin{split}
+\mathbf{m}_i^\top\mathbf{B}\mathbf{m}_j=&\mathbf{v}_{ij}^\top\mathbf{b}\\
+=&\left [
+\begin{array}{c}
+m_{i1}m_{j1}+m_{i2}m_{j2}\\
+m_{i1}m_{j3}+m_{i3}m_{j1}\\
+m_{i2}m_{j3}+m_{i3}m_{j2}\\
+m_{i3}m_{j3}
+\end{array}
+\right ]^\top
+\left [
+\begin{array}{c}
+B_{11} \\
+B_{13} \\
+B_{23} \\
+B_{33}
+\end{array}
+\right ]\\
+\end{split}
+\end{equation}
+Putting them together yields the following results:
+\begin{equation}
+\mathbf{Vb}=\left [
+\begin{array}{c}
+\mathbf{v}_{12}^\top\\
+\mathbf{v}_{13}^\top\\
+\mathbf{v}_{23}^\top\\
+(\mathbf{v}_{11}-\mathbf{v}_{22})^\top\\
+(\mathbf{v}_{22}-\mathbf{v}_{33})^\top\\
+\end{array}
+\right ]\mathbf{b}=0
+\end{equation}
+As a result, we can solve the following optimization problem to get $\mathbf{B}$:
+\begin{equation}
+\begin{split}
+\min_{\mathbf{b}}&\quad \|\mathbf{Vb}\|_2^2\\
+s.t.&\quad \|\mathbf{b}\|=1
+\end{split}
+\end{equation}
+which again can be solved by SVD. One caveat in this optimization is that the optimal $\mathbf{b}$ need to be converted into $\mathbf{B}$ up to scale:
+\begin{equation}
+\begin{split}
+&\beta\mathbf{B}\\
+=&\left [
+\begin{array}{ccc}
+b_1 & 0 & b_2 \\
+0 & b_1 & b_3 \\
+b_2 & b_3 & b_4
+\end{array}
+\right ]\\
+=&\left [
+\begin{array}{ccc}
+\frac{\beta}{f^2} & 0 & -\frac{\beta x}{f^2} \\
+0 & \frac{\beta}{f^2} & -\frac{\beta y}{f^2} \\
+-\frac{\beta x}{f^2} & -\frac{\beta y}{f^2} & \beta\frac{x^2+y^2}{f^2} + \beta
+\end{array}
+\right ]\\
+\end{split}
+\end{equation}
+The camera parameters then can be pulled directly from $\mathbf{b}$:
+\begin{equation}
+\begin{split}
+x=&-\frac{b_2}{b_1}\\
+y=&-\frac{b_3}{b_1}\\
+\beta=&b_4-\frac{b_2^2+b_3^2}{b_1}\\
+f=&\sqrt{\frac{\beta}{b_1}}=\frac{\sqrt{b_4b_1-(b_2^2+b_3^2)}}{|b_1|}
+\end{split}
+\end{equation}
+Once $\mathbf{K}$ is known, $\mathbf{R}$ can be solved by computing $\mathbf{R}\propto\mathbf{K}^{-1}[\mathbf{m}_1,\mathbf{m}_2,\mathbf{m}_3]$, and using SVD to make sure $\mathbf{R}$ is orthogonal.
+
+\subsection{Optimizing shape deformation}
+
+%------------------------------------------------------------------------
+\section{Experiments}
+
+%------------------------------------------------------------------------
+\section{Conclusion}
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{reportbib}
+}
+
+\end{document}
