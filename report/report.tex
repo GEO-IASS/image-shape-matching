@@ -244,6 +244,55 @@ f=&\sqrt{\frac{\beta}{b_1}}=\frac{\sqrt{b_4b_1-(b_2^2+b_3^2)}}{|b_1|}
 Once $\mathbf{K}$ is known, $\mathbf{R}$ can be solved by computing $\mathbf{R}\propto\mathbf{K}^{-1}[\mathbf{m}_1,\mathbf{m}_2,\mathbf{m}_3]$, and using SVD to make sure $\mathbf{R}$ is orthogonal.
 
 \subsection{Optimizing shape deformation}
+Here we only consider scaling the shape in its principal axis. Specifically, we want to estimate a diagonal matrix $\mathbf{S}$:
+\begin{equation}
+\mathbf{S}=\left [
+\begin{array}{ccc}
+s_x & 0 & 0 \\
+0 & s_y & 0 \\
+0 & 0 & s_z
+\end{array}
+\right ]
+\end{equation}
+For each pair of correspondent points $\mathbf{p}_i$ and $\mathbf{q}_i$, we want to fit $\mathbf{S}$ such that:
+\begin{equation}
+\begin{split}
+\mathbf{q}_i=&s_i\mathbf{K}(\mathbf{R}\mathbf{S}\mathbf{p}_i + \mathbf{t})\\
+=&s_i\mathbf{K}(\mathbf{R}\mathbf{P}_i\left [
+\begin{array}{c}
+s_x \\
+s_y \\
+s_z
+\end{array}
+\right ] + \mathbf{t})
+\end{split}
+\end{equation}
+Here $\mathbf{P}_i$ is a diagonal matrix:
+\begin{equation}
+\mathbf{P}_i=\left [
+\begin{array}{ccc}
+p_{i1} & 0 & 0\\
+0 & p_{i2} & 0\\
+0 & 0 & p_{i3}
+\end{array}
+\right ]
+\end{equation}
+Define $\mathbf{D}^i = \mathbf{KRP}_i\in\mathcal{R}^{3\times 3}$ and $\mathbf{o}=\mathbf{Kt}\in\mathcal{R}^{3}$, we get 2 linear equations for each pair of correspondence:
+\begin{equation}
+\begin{split}
+&d^i_{11}s_x+d^i_{12}s_y+d^i_{13}s_z+o_1\\
+=&q_{i1}(d^i_{31}s_x+d^i_{32}s_y+d^i_{33}s_z+o_3)\\
+&d^i_{21}s_x+d^i_{22}s_y+d^i_{23}s_z+o_2\\
+=&q_{i2}(d^i_{31}s_x+d^i_{32}s_y+d^i_{33}s_z+o_3)\\
+\end{split}
+\end{equation}
+which can be formulated into a linear least square problem:
+\begin{equation}
+\begin{split}
+\min_{\mathbf{s}\in\mathcal{R}^3}&\quad \|\mathbf{D}\mathbf{s}-\mathbf{O}\|_2^2
+\end{split}
+\end{equation}
+Here $\mathbf{D}\in\mathcal{R}^{2n\times 3}$, $\mathbf{O}\in\mathcal{R}^{2n}$, and $\mathbf{s}=(\mathbf{D}^\top\mathbf{D})^{-1}\mathbf{D}^\top\mathbf{O}$.
 
 %------------------------------------------------------------------------
 \section{Experiments}
