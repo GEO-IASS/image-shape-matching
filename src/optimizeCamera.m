@@ -63,16 +63,51 @@ M = Q \ (M * P);
 %% Extract K, R, t from M.
 % M = [KR, Kt]. We need to decompose M(:, 1 : 3) as the product of an upper
 % triangular matrix K and an orthogonal matrix R.
-[K, R] = rq(M(:, 1 : 3));
+% Initialize m1 to m4 first.
+m1 = M(:, 1); m2 = M(:, 2); m3 = M(:, 3); m4 = M(:, 4);
 
-% Next solve Kt = M(:, 4).
-t = K \ M(:, 4);
+% Build v12, v13, v23, v11, v22, v33. All of them are column vectors.
+v12 = [m1(1) * m2(1) + m1(2) * m2(2); m1(1) * m2(3) + m1(3) * m2(1); ...
+       m1(2) * m2(3) + m1(3) * m2(2); m1(3) * m2(3)];
+v13 = [m1(1) * m3(1) + m1(2) * m3(2); m1(1) * m3(3) + m1(3) * m3(1); ...
+       m1(2) * m3(3) + m1(3) * m3(2); m1(3) * m3(3)];
+v23 = [m2(1) * m3(1) + m2(2) * m3(2); m2(1) * m3(3) + m2(3) * m3(1); ...
+       m2(2) * m3(3) + m2(3) * m3(2); m2(3) * m3(3)];
+v11 = [m1(1) * m1(1) + m1(2) * m1(2); m1(1) * m1(3) + m1(3) * m1(1); ...
+       m1(2) * m1(3) + m1(3) * m1(2); m1(3) * m1(3)];
+v22 = [m2(1) * m2(1) + m2(2) * m2(2); m2(1) * m2(3) + m2(3) * m2(1); ...
+       m2(2) * m2(3) + m2(3) * m2(2); m2(3) * m2(3)];
+v33 = [m3(1) * m3(1) + m3(2) * m3(2); m3(1) * m3(3) + m3(3) * m3(1); ...
+       m3(2) * m3(3) + m3(3) * m3(2); m3(3) * m3(3)];
 
-% Now let's divide K by K(3, 3) so that K(3, 3) = 1. Moreover, since we
-% know K(1, 1) is positive and K(2, 2) is negative, we flip the signs for
-% K(:, 1) and K(:, 2), and, as well as R(1, :), t(1), R(2, :), t(2) if
-% necessary.
-K = K / K(3, 3);
+% Build V.
+V = [v12'; v13'; v23'; (v11 - v22)'; (v22 - v33)'];
+
+% Solve b.
+[~, ~, b] = svd(V);
+b = b(:, end);
+
+% Now solve K.
+x = -b(2) / b(1);
+y = -b(3) / b(1);
+beta = b(4) - (b(2) * b(2) + b(3) * b(3)) / b(1);
+f = sqrt(beta / b(1));
+K = [f 0 x; 0 f y; 0 0 1];
+
+% Solve R and t.
+R = K \ [m1 m2 m3];
+t = K \ m4;
+
+% Enforce R is orthogonal. Note that the scaling factor should be divided
+% from both R and t.
+[u, ~, v] = svd(R);
+lambda = norm(R, 'fro') / norm(u * v', 'fro');
+R = u * v';
+t = t / lambda;
+
+% Since we know K(1, 1) is positive and K(2, 2) is negative, we flip the
+% signs for K(:, 1) and K(:, 2), and, as well as R(1, :), t(1), R(2, :),
+% t(2) if necessary.
 % Do we need to multiply -1 for the first column?
 if K(1, 1) < 0
   K(:, 1) = -K(:, 1);
