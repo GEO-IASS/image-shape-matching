@@ -25,7 +25,7 @@
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{\LaTeX\ Author Guidelines for CVPR Proceedings}
+\title{Image-Shape Matching with Shape Deformation}
 
 \author{Tao Du\\
 Stanford University\\
@@ -89,8 +89,9 @@ Here $\mathbf{A}\in\mathcal{R}^{2n\times 12}$. The optimal $\mathbf{m}$ can be f
 \subsection{Optimizing intrinsic and extrinsic parameters}
 
 \noindent
-Once $\mathbf{M}$ is found, we will decompose $\mathbf{M}=\lambda\mathbf{K[R,t]}$. Here we borrow the idea from Zhang~\cite{zhang2000flexible} to fit both the camera matrix $\mathbf{K}$, the rotation matrix $\mathbf{R}$ and the translation vector $\mathbf{t}$. We use $\mathbf{m}_i$ to represent the $i$-th column in $\mathbf{M}$.
+Once $\mathbf{M}$ is found, we will decompose $\mathbf{M}=\lambda\mathbf{K[R,t]}$. Here we borrow the idea from Zhang~\cite{zhang2000flexible} to fit both the camera matrix $\mathbf{K}$, the rotation matrix $\mathbf{R}$ and the translation vector $\mathbf{t}$. We use $\mathbf{m}_i$ to represent the $i$-th column in $\mathbf{M}$.\\
 
+\noindent
 The camera matrix $\mathbf{K}$ is an upper triangular matrix:
 \begin{equation}
 \mathbf{K}=\left [
@@ -244,6 +245,8 @@ f=&\sqrt{\frac{\beta}{b_1}}=\frac{\sqrt{b_4b_1-(b_2^2+b_3^2)}}{|b_1|}
 Once $\mathbf{K}$ is known, $\mathbf{R}$ can be solved by computing $\mathbf{R}\propto\mathbf{K}^{-1}[\mathbf{m}_1,\mathbf{m}_2,\mathbf{m}_3]$, and using SVD to make sure $\mathbf{R}$ is orthogonal.
 
 \subsection{Optimizing shape deformation}
+
+\noindent
 Here we only consider scaling the shape in its principal axis. Specifically, we want to estimate a diagonal matrix $\mathbf{S}$:
 \begin{equation}
 \mathbf{S}=\left [
@@ -294,11 +297,31 @@ which can be formulated into a linear least square problem:
 \end{equation}
 Here $\mathbf{D}\in\mathcal{R}^{2n\times 3}$, $\mathbf{O}\in\mathcal{R}^{2n}$, and $\mathbf{s}=(\mathbf{D}^\top\mathbf{D})^{-1}\mathbf{D}^\top\mathbf{O}$.
 
+\subsection{Putting it together}
+
+\noindent
+Once we figure out how to optimize camera parameters and scaling parameters, we loop over these variables and optimize them alternatively. In each iteration, we start from fitting the homography and extract the camera intrinsic parameter $\mathbf{K}$, rotation matrix $\mathbf{R}$ and translation vector $\mathbf{t}$, then we fix $\mathbf{K}$, $\mathbf{R}$, $\mathbf{t}$, optimize the scaling factor $\mathbf{s}$, and scaling $\mathbf{p}_i$ by $\mathbf{s}$. We use the scaled $\mathbf{p}_i$ in the next iteration. We terminate the optimization as long as $\mathbf{s}$ converges to $[1,1,1]^\top$.
+
 %------------------------------------------------------------------------
 \section{Experiments}
 
+\noindent
+\textbf{Chair} \\
+
+\noindent
+\textbf{Bunny} \\
+
+\noindent
+\textbf{Dragon}
+
 %------------------------------------------------------------------------
 \section{Conclusion}
+
+\noindent
+In this project we present a global optimization method for image and shape mapping with shape deformations. We assume the correspondent points between image and shape are given, and the shape scales in its 3 principal axes. We alternatively optimize the camera parameters and the scaling parameters. Our experiments demonstrate that this global optimization approach works well in finding good parameters to achieve small error.\\
+
+\noindent
+This work can be improved in the following ways: One interesting extension is to implement a non-trivial shape deformation model, especially for models that allow local deformation in multiple parts of shapes. This kind of shape variation is prevalent in man-made objects. Moreover, our work can be integrated with correspondence detection approaches to build a completely automatic pipeline.
 
 {\small
 \bibliographystyle{ieee}

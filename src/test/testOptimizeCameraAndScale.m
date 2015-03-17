@@ -18,7 +18,7 @@ imageSize = [640 480]';
 cameraPos = [0.2 0 -0.7]';
 cameraLookAt = [0 0 0]';
 cameraUp = [0 1 0]';
-fov = 90;
+fov = 75;
 
 % Define the lighting.
 lightPos = [0.3 0.3 -0.3]';
@@ -31,7 +31,7 @@ I = gammaCorrectImage(I);
 
 %% Deform the shape.
 % s ranges from 0.5 to 1.5.
-s = rand(3, 1) + 0.5;
+s = [0.6; 0.8; 1.2];
 featureVertex = bsxfun(@times, V, s');
 featureImage = model2Image(featureVertex, M2V, V2P);
 
