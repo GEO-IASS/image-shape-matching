@@ -313,12 +313,12 @@ Once we figure out how to optimize camera parameters and scaling parameters, we 
 Model & rel($\mathbf{K}$) & rel($\mathbf{R}$) & $\|\mathbf{t}_g\|/\|\mathbf{t}_e\|$ & $\|\mathbf{s}_g\|/\|\mathbf{s}_e\|$ & rel($\hat{\mathbf{t}}$) & rel($\hat{\mathbf{s}}$) \\
 \hline\hline
 Chair & 1.1465e-05 & 7.2471e-06 & 0.8248 & 0.8248 & 1.4494e-05 & 8.4682e-06 \\
-Bunny & 0 & 0 & 0 & 0 & 0 & 0 \\
+Bunny & 0.1803 & 0.1309 & 1.3409 & 1.2367 & 0.2809 & 0.1260 \\
 Dragon & 0 & 0 & 0 & 0 & 0 & 0 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Quantitative analysis for all the models.}
+\caption{Quantitative analysis for all the models. The bunny model has large relative error because we find a different combination of scaling and camera parameters which yield small rms error.}
 \label{tb:err}
 \end{table*}
 
@@ -384,7 +384,36 @@ Figure ~\ref{fig:chairgrid} shows the overlap between optimized chair models and
 \end{figure*}
 
 \noindent
-\textbf{Bunny} \\
+\textbf{Bunny} The synthetic image and the original bunny is displayed in Figure ~\ref{fig:bunnymodel}. We set $\mathbf{s}_g=[1.25, 0.8, 1.1]^\top$ in this example. It takes only 4 iterations for the algorithm to converge. The rms error in each iteration is plotted in Figure ~\ref{fig:bunnyplot}.\\
+
+\noindent
+One notable difference between Bunny and Chair is that Bunny does not converge to the ground truth parameters. Nevertheless, we manage to find another combination of scaling factor and camera parameters that works well for matching the images and the bunny. This phenomenon again indicates that our image-shape matching problem is under-determinant.
+
+\begin{figure}[t]
+\begin{center}
+   \subfloat{\includegraphics[width=1\linewidth]{bunny-image.eps}}
+   \quad
+   \subfloat{\includegraphics[width=1\linewidth]{bunny-shape.eps}}
+\end{center}
+   \caption{Bunny. Top: the synthetic image, rendered with scaled model. Bottom: the original model.}
+\label{fig:bunnymodel}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+	\includegraphics[scale=0.55]{bunny-figure.eps}
+\end{center}
+	\caption{The rms error for Bunny. The horizontal axis: the number of iterations; The vertical axis: the rms error in pixel.}
+\label{fig:bunnyplot}
+\end{figure}
+
+\begin{figure*}
+\begin{center}
+	\includegraphics[scale=0.45]{bunny-grid.eps}
+\end{center}
+   \caption{Blending the optimized chair model and the synthetic image in iteration 0, 1, 2, 4.}
+\label{fig:bunnygrid}
+\end{figure*}
 
 \noindent
 \textbf{Dragon}
