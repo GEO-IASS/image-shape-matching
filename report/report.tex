@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{subfig}
 
 % Include other packages here, before hyperref.
 
@@ -305,8 +306,82 @@ Once we figure out how to optimize camera parameters and scaling parameters, we 
 %------------------------------------------------------------------------
 \section{Experiments}
 
+\begin{table*}[t]
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+Model & rel($\mathbf{K}$) & rel($\mathbf{R}$) & $\|\mathbf{t}_g\|/\|\mathbf{t}_e\|$ & $\|\mathbf{s}_g\|/\|\mathbf{s}_e\|$ & rel($\hat{\mathbf{t}}$) & rel($\hat{\mathbf{s}}$) \\
+\hline\hline
+Chair & 1.1465e-05 & 7.2471e-06 & 0.8248 & 0.8248 & 1.4494e-05 & 8.4682e-06 \\
+Bunny & 0 & 0 & 0 & 0 & 0 & 0 \\
+Dragon & 0 & 0 & 0 & 0 & 0 & 0 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Quantitative analysis for all the models.}
+\label{tb:err}
+\end{table*}
+
 \noindent
-\textbf{Chair} \\
+In this section we test our algorithms with three models: Chair from ShapeNet~\cite{shapenet2015}, Bunny and Dragon from the Stanford 3D Scanning Repository~\cite{stanford3d2014}. For all the experiments below, we first scale the model by a predefined scaling factor $\mathbf{s}$, then we use PBRT~\cite{pharr2010pbrt} to render a synthetic image. $\mathbf{p}_i$ are all the vertices in the shape, and $\mathbf{q}_i$ are the projected pixel positions of $\mathbf{p}_i$ in the synthetic image. We recover the camera position and the scaling factor, and compare them with the ground truth values.\\
+
+\noindent
+To quantitatively evaluate the results, we provide the relative error between the ground truth $\mathbf{K}_g$, $\mathbf{R}_g$, and the corresponding estimation $\mathbf{K}_e$, $\mathbf{R}_e$:
+\begin{equation}
+\begin{split}
+\textrm{rel}(\mathbf{X})=&\frac{\|\mathbf{X}_g-\mathbf{X}_e\|}{\|\mathbf{X}_g\|}
+\end{split}
+\end{equation}
+We use Frobenius norm for matrices and 2-norm for vectors.\\
+
+\noindent
+Note that $\mathbf{t}$ and $\mathbf{s}$ are up to scale simultaneously: if $\mathbf{q}_i=s_i\mathbf{K}(\mathbf{R}\mathbf{S}\mathbf{p}_i + \mathbf{t})$ holds, so does $\mathbf{q}_i=(s_i/\lambda)\mathbf{K}(\mathbf{R}\lambda\mathbf{S}\mathbf{p}_i + \lambda\mathbf{t})$. As a result, for $\mathbf{t}$ and $\mathbf{s}$ we expect the ground truth and the estimated vectors are parallel, and the ratio between their lengths are the same:
+\begin{equation}
+\begin{split}
+\frac{\|\mathbf{t}_g\|}{\|\mathbf{t}_e\|}=&\frac{\|\mathbf{s}_g\|}{\|\mathbf{s}_e\|}\\
+\hat{\mathbf{t}}_g=&\hat{\mathbf{t}}_e\\
+\hat{\mathbf{s}}_g=&\hat{\mathbf{s}}_e\\
+\end{split}
+\end{equation}
+Here $\hat{\mathbf{x}}=\mathbf{x}/\|\mathbf{x}\|$, or the unit vector in its direction.\\
+
+\noindent
+As we use an iterative algorithm, we also compute the rms error in each iteration. The rms error is defined as the root-mean-squared value of the difference between the projected pixel position of the shape vertex, and its corresponding pixel in the synthetic image.\\
+
+\noindent
+To evaluate the results qualitatively, we also blend the projection of the model and the synthetic image in a single image. The overlap of the two contours indicates the better matching results.\\
+
+\noindent
+\textbf{Chair} The synthetic image for the scaled chair model and the original chair is displayed in Figure ~\ref{fig:chairmodel}. We set $\mathbf{s}_g=[0.6, 0.8, 1.2]^\top$ in this example. The algorithm terminates in 180 iterations. The rms error in each iteration is plotted in Figure ~\ref{fig:chairplot}. The rms error decreases quickly at the beginning, then it refines the camera parameters and the scaling factor, as shown in the long tail of the plot.\\
+
+\noindent
+Figure ~\ref{fig:chairgrid} shows the overlap between optimized chair models and the original synthetic image in 8 different iterations. Iteration 0 quickly aligns the unscaled model with the scaled one in the image, which turns out to be a good guess for optimizing the scale factor in the next few iterations. Within 5 iterations the algorithm already aligns the scaled model and the synthetic image perfectly. The quantitative errors between each pairs of parameters are listed in Table ~\ref{tb:err}.
+
+\begin{figure}[t]
+\begin{center}
+   \subfloat{\includegraphics[width=1\linewidth]{chair-image.eps}}
+   \quad
+   \subfloat{\includegraphics[width=1\linewidth]{chair-shape.eps}}
+\end{center}
+   \caption{Chair. Top: the synthetic image, rendered with scaled model. Bottom: the original model.}
+\label{fig:chairmodel}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+	\includegraphics[scale=0.55]{chair-figure.eps}
+\end{center}
+	\caption{The rms error for Chair. The horizontal axis: the number of iterations; The vertical axis: the rms error in pixel.}
+\label{fig:chairplot}
+\end{figure}
+
+\begin{figure*}
+\begin{center}
+	\includegraphics[scale=0.45]{chair-grid.eps}
+\end{center}
+   \caption{Blending the optimized chair model and the synthetic image in 8 iterations. Top row: iteration 0, 1, 2, 5; Bottom row: iteration 10, 50, 150, 180.}
+\label{fig:chairgrid}
+\end{figure*}
 
 \noindent
 \textbf{Bunny} \\
@@ -318,7 +393,7 @@ Once we figure out how to optimize camera parameters and scaling parameters, we 
 \section{Conclusion}
 
 \noindent
-In this project we present a global optimization method for image and shape mapping with shape deformations. We assume the correspondent points between image and shape are given, and the shape scales in its 3 principal axes. We alternatively optimize the camera parameters and the scaling parameters. Our experiments demonstrate that this global optimization approach works well in finding good parameters to achieve small error.\\
+In this project we present a global optimization method for image and shape mapping with shape deformations. We assume the correspondent points between image and shape are given, and the shape scales in its 3 principal axes. We alternatively optimize the camera parameters and the scaling parameters. Our experiments demonstrate that given accurate correspondent points, this global optimization approach works well in finding good parameters to achieve small error.\\
 
 \noindent
 This work can be improved in the following ways: One interesting extension is to implement a non-trivial shape deformation model, especially for models that allow local deformation in multiple parts of shapes. This kind of shape variation is prevalent in man-made objects. Moreover, our work can be integrated with correspondence detection approaches to build a completely automatic pipeline.

@@ -1,4 +1,4 @@
-function [ M2V, V2P, s ] = ...
+function [ M2V, V2P, s, rms ] = ...
   optimizeCameraAndScale( featureImage, featureVertex )
 % Tao Du
 % taodu@stanford.edu
@@ -12,7 +12,9 @@ function [ M2V, V2P, s ] = ...
 %        featureVertex: n x 3 matrix.
 % Output: M2V: 4 x 4 matrix.
 %         V2P: 3 x 3 matrix.
-%         s: 3 x 1 column vector.
+%         s: 3 x iter column vector, each column is the scaling factor
+%            after each iteration. 
+%         rms: 1 x iter row vector.
 
 % Initialize the scaling factor.
 s = ones(3, 1);
@@ -22,6 +24,7 @@ maxIter = 1000;
 iter = 0;
 threshold = 1e-6;
 
+rms = [];
 while iter < maxIter
   % Optimize M2V and V2P.
   [M2V, V2P] = optimizeCamera(featureImage, featureVertex);
@@ -38,15 +41,19 @@ while iter < maxIter
   featureVertex = bsxfun(@times, featureVertex, si');
 
   % Print out the rms error for reference.
-  rms = evaluateHomography(M2V, V2P, featureImage, featureVertex);
-  fprintf('iter = %d, rms = %f\n', iter, rms);
-  
+  err = evaluateHomography(M2V, V2P, featureImage, featureVertex);
+  fprintf('iter = %d, rms = %f\n', iter, err);
+  rms = [rms err];
+
   % Update scaling factor.
-  s = s .* si;
+  s = [s s(:, end) .* si];
 
   % Increment the counter.
   iter = iter + 1;
 end
+
+% Remove the first column from s.
+s = s(:, 2 : end);
 
 end
 
