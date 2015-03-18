@@ -351,21 +351,19 @@ As we use an iterative algorithm, we also compute the rms error in each iteratio
 \noindent
 To evaluate the results qualitatively, we also blend the projection of the model and the synthetic image in a single image. The overlap of the two contours indicates the better matching results.\\
 
+\begin{figure*}
+\begin{center}
+	\includegraphics[scale=0.45]{image-shape.eps}
+\end{center}
+   \caption{The synthetic image and the original models used in the experiments. Top: synthetic images for scaled chair, bunny and dragon model; Bottom: the original chair, bunny and dragon model.}
+\label{fig:imageshape}
+\end{figure*}
+
 \noindent
-\textbf{Chair} The synthetic image for the scaled chair model and the original chair is displayed in Figure ~\ref{fig:chairmodel}. We set $\mathbf{s}_g=[0.6, 0.8, 1.2]^\top$ in this example. The algorithm terminates in 180 iterations. The rms error in each iteration is plotted in Figure ~\ref{fig:chairplot}. The rms error decreases quickly at the beginning, then it refines the camera parameters and the scaling factor, as shown in the long tail of the plot.\\
+\textbf{Chair} The synthetic image for the scaled chair model and the original chair is displayed in Figure ~\ref{fig:imageshape}. We set $\mathbf{s}_g=[0.6, 0.8, 1.2]^\top$ in this example. The algorithm terminates in 180 iterations. The rms error in each iteration is plotted in Figure ~\ref{fig:chairplot}. The rms error decreases quickly at the beginning, then it refines the camera parameters and the scaling factor, as shown in the long tail of the plot.\\
 
 \noindent
 Figure ~\ref{fig:chairgrid} shows the overlap between optimized chair models and the original synthetic image in 8 different iterations. Iteration 0 quickly aligns the unscaled model with the scaled one in the image, which turns out to be a good guess for optimizing the scale factor in the next few iterations. Within 5 iterations the algorithm already aligns the scaled model and the synthetic image perfectly. The quantitative errors between each pairs of parameters are listed in Table ~\ref{tb:err}.
-
-\begin{figure}[t]
-\begin{center}
-   \subfloat{\includegraphics[width=1\linewidth]{chair-image.eps}}
-   \quad
-   \subfloat{\includegraphics[width=1\linewidth]{chair-shape.eps}}
-\end{center}
-   \caption{Chair. Top: the synthetic image, rendered with scaled model. Bottom: the original model.}
-\label{fig:chairmodel}
-\end{figure}
 
 \begin{figure}[t]
 \begin{center}
@@ -384,20 +382,10 @@ Figure ~\ref{fig:chairgrid} shows the overlap between optimized chair models and
 \end{figure*}
 
 \noindent
-\textbf{Bunny} The synthetic image and the original bunny is displayed in Figure ~\ref{fig:bunnymodel}. We set $\mathbf{s}_g=[1.25, 0.8, 1.1]^\top$ in this example. It takes only 4 iterations for the algorithm to converge. The rms error in each iteration is plotted in Figure ~\ref{fig:bunnyplot}.\\
+\textbf{Bunny} The synthetic image and the original bunny is displayed in Figure ~\ref{fig:imageshape}. We set $\mathbf{s}_g=[1.25, 0.8, 1.1]^\top$ in this example. It takes only 4 iterations for the algorithm to converge. The rms error in each iteration is plotted in Figure ~\ref{fig:bunnyplot}.\\
 
 \noindent
 One notable difference between Bunny and Chair is that Bunny does not converge to the ground truth parameters. Nevertheless, we manage to find another combination of scaling factor and camera parameters that works well for matching the images and the bunny. This phenomenon again indicates that our image-shape matching problem is under-determinant.
-
-\begin{figure}[t]
-\begin{center}
-   \subfloat{\includegraphics[width=1\linewidth]{bunny-image.eps}}
-   \quad
-   \subfloat{\includegraphics[width=1\linewidth]{bunny-shape.eps}}
-\end{center}
-   \caption{Bunny. Top: the synthetic image, rendered with scaled model. Bottom: the original model.}
-\label{fig:bunnymodel}
-\end{figure}
 
 \begin{figure}[t]
 \begin{center}
@@ -416,17 +404,7 @@ One notable difference between Bunny and Chair is that Bunny does not converge t
 \end{figure*}
 
 \noindent
-\textbf{Dragon} Figure ~\ref{fig:dragonmodel} displays the synthetic dragon image and the orginal dragon model. We set $\mathbf{s}_g=[1.3, 0.7, 0.9]^\top$ in this example. The algorithm terminates in 78 iterations. The rms error in each iteration is plotted in Figure ~\ref{fig:dragonplot}. As in the previous examples we present the overlap between models and images in Figure ~\ref{fig:dragongrid}. Unlike the Chair and Bunny example, it takes much more iterations to register the model with the image. This is as expected since the dragon contains much more fine-grained details.
-
-\begin{figure}[t]
-\begin{center}
-   \subfloat{\includegraphics[width=1\linewidth]{dragon-image.eps}}
-   \quad
-   \subfloat{\includegraphics[width=1\linewidth]{dragon-shape.eps}}
-\end{center}
-   \caption{Dragon. Top: the synthetic image, rendered with scaled model. Bottom: the original model.}
-\label{fig:dragonmodel}
-\end{figure}
+\textbf{Dragon} Figure ~\ref{fig:imageshape} displays the synthetic dragon image and the orginal dragon model. We set $\mathbf{s}_g=[1.3, 0.7, 0.9]^\top$ in this example. The algorithm terminates in 78 iterations. The rms error in each iteration is plotted in Figure ~\ref{fig:dragonplot}. As in the previous examples we present the overlap between models and images in Figure ~\ref{fig:dragongrid}. Unlike the Chair and Bunny example, it takes much more iterations to register the model with the image. This is as expected since the dragon contains much more fine-grained details.
 
 \begin{figure}[t]
 \begin{center}
