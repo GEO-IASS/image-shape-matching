@@ -314,7 +314,7 @@ Model & rel($\mathbf{K}$) & rel($\mathbf{R}$) & $\|\mathbf{t}_g\|/\|\mathbf{t}_e
 \hline\hline
 Chair & 1.1465e-05 & 7.2471e-06 & 0.8248 & 0.8248 & 1.4494e-05 & 8.4682e-06 \\
 Bunny & 0.1803 & 0.1309 & 1.3409 & 1.2367 & 0.2809 & 0.1260 \\
-Dragon & 0 & 0 & 0 & 0 & 0 & 0 \\
+Dragon & 3.7028e-06 & 2.9360e-06 & 0.9905 & 0.9905 & 5.8720e-06 & 1.7058e-06 \\
 \hline
 \end{tabular}
 \end{center}
@@ -416,7 +416,33 @@ One notable difference between Bunny and Chair is that Bunny does not converge t
 \end{figure*}
 
 \noindent
-\textbf{Dragon}
+\textbf{Dragon} Figure ~\ref{fig:dragonmodel} displays the synthetic dragon image and the orginal dragon model. We set $\mathbf{s}_g=[1.3, 0.7, 0.9]^\top$ in this example. The algorithm terminates in 78 iterations. The rms error in each iteration is plotted in Figure ~\ref{fig:dragonplot}. As in the previous examples we present the overlap between models and images in Figure ~\ref{fig:dragongrid}. Unlike the Chair and Bunny example, it takes much more iterations to register the model with the image. This is as expected since the dragon contains much more fine-grained details.
+
+\begin{figure}[t]
+\begin{center}
+   \subfloat{\includegraphics[width=1\linewidth]{dragon-image.eps}}
+   \quad
+   \subfloat{\includegraphics[width=1\linewidth]{dragon-shape.eps}}
+\end{center}
+   \caption{Dragon. Top: the synthetic image, rendered with scaled model. Bottom: the original model.}
+\label{fig:dragonmodel}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+	\includegraphics[scale=0.55]{dragon-figure.eps}
+\end{center}
+	\caption{The rms error for Dragon. The horizontal axis: the number of iterations; The vertical axis: the rms error in pixel.}
+\label{fig:dragonplot}
+\end{figure}
+
+\begin{figure*}
+\begin{center}
+	\includegraphics[scale=0.45]{dragon-grid.eps}
+\end{center}
+   \caption{Blending the optimized dragon model and the synthetic image in 8 iterations. Top row: iteration 0, 1, 2, 5; Bottom row: iteration 10, 25, 50, 78.}
+\label{fig:dragongrid}
+\end{figure*}
 
 %------------------------------------------------------------------------
 \section{Conclusion}
