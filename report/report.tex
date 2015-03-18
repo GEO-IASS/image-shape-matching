@@ -43,19 +43,41 @@ Stanford University\\
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
+\noindent
+We present a global optimization approach to match keypoints from images and shapes while the shape can scale in three directions. The output of our method includes the camera matrix, the transform matrix between the world and the camera coordinates, and the scaling factor on the shape. We run our algorithm on three models with synthetic images. The experimental results show that our algorithm either manages to recover the ground truth values, or finds another physically plausible combination of parameters with small errors.
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
 \section{Introduction}
 
-%------------------------------------------------------------------------
-\section{Related Work}
+\noindent
+Computer vision researchers have been working on 2D images for a long time, but recently 3D models become more and more prevalent in computer vision and computer graphics. As a result, we think it is of great significance to connect 3D shapes with large 2D image datasets. One of the most fundamental problems in this active area is to match image and shape together: assume we have a model $\mathbf{P}$, and we take a picture $\mathbf{I}$ of $\mathbf{P}$. If we are given a number of feature points in $\mathbf{P}$ and their corresponding positions in $\mathbf{I}$, can we estimate the camera matrix and the transformation so that we can project $\mathbf{P}$ into $\mathbf{I}$ to match all the key points correctly? It is well known that the matching between 2D pixels and 3D points can be solved by fitting a $3\times 4$ homography matrix, and the camera matrix $\mathbf{K}$ and the rotation matrix can extracted by RQ decomposition. Once $\mathbf{K}$ is defined, the translation vector $\mathbf{t}$ can be solved trivially as $\mathbf{K}$ is invertible, and solving $\mathbf{t}$ is as easy as solving an upper triangular linear system of equations.\\
+
+\noindent
+The solution described above works well theoretically, as long as the corresponding points are correctly labeled, and the shape in $\mathbf{I}$ and $\mathbf{P}$ are the same. However, we find this method fails some time in practice. The biggest issue is that one cannot expect a perfectly identical shape model is given for the image we are interested in matching. If we ignore the shape variation between the model we have and the model in the image, it turns out that the homography tends to absorb the variation into the camera matrix, and give a physically implausible camera model. As a simple example, let's consider stretching a cube in $x$-axis for 10 times. Instead of recognizing the scaling in $x$-axis, the algorithm will fit a perfect homography matrix, but with 10x focal length in $x$-axis for the camera! In some other examples, the homography matrix may contain badly skewed cameras, or camera model with largely deviated center points.\\
+
+\noindent
+As a result, we attempt to decompose the shape variation and the camera parameters in this project. We assume the shape is first scaled in three axes, then transformed into the camera space and projected into the image. Our goal is to estimate the scaling factor, the camera model, and the transformation at the same time. To achieve this, we use a different approach to extract the camera matrix from the homography, which enforces an ideal pinhole camera model with zero skew and the same focal lengths in $x$ and $y$ axes. We then propose a method to alternatively optimize the homography and the scaling factor until convergence.\\
+
+\noindent
+The remaining sections are organized as follows: Section 2 gives a short review of previous work; Section 3 covers the core of our optimization algorithm; The experimental results are provided in Section 4, and the final conclusion and discussions are given in Section 5.
 
 %------------------------------------------------------------------------
-\section{Shape Deformation}
+\section{Related Work}
+\noindent
+\textbf{Intrinsic/extrinsic parameter estimation} Estimating the camera model and the extrinsic parameters have been heavily studied in camera calibration, single view metrology and structure from motion. Perhaps the most noticeable work is from Zhang ~\cite{zhang2000flexible}, who proposed a well-known method for camera model calibration using checkerboards. In this project we follow his method to decompose the intrinsic and extrinsic parameters from the homography.\\
+
+\noindent
+\textbf{Shape deformation} Summer \etal~\cite{sumner2007embedded} proposed an algorithm to manipulate the shape deformation based on graph nodes sampled from the shape. While their method is intuitive, they do not consider scaling the shape locally. Despite that, they provide a reasonable way to model the rigid local rotation and translation.\\
+
+\noindent
+Due to the time constraint, we only consider global scaling for the shapes in our project. Although this assumption greatly reduces the deformation space, we can still get valuable results which may help guide the follow up work in the future.
 
 %------------------------------------------------------------------------
 \section{Optimization Algorithm}
+
+\noindent
+In this section we describe our optimization algorithm in great details. The basic idea is to optimize the camera positions and the deformation functions alternatively. We have not yet proved the theoretical properties of the algorithms below, but we believe the root-mean-squared error decreases after each iteration, so the algorithm guarantees to converge into a local minima.
 
 \subsection{Optimizing homography}
 
@@ -306,7 +328,7 @@ Once we figure out how to optimize camera parameters and scaling parameters, we 
 %------------------------------------------------------------------------
 \section{Experiments}
 
-\begin{table*}[t]
+\begin{table*}
 \begin{center}
 \begin{tabular}{|l|c|c|c|c|c|c|}
 \hline
@@ -321,6 +343,14 @@ Dragon & 3.7028e-06 & 2.9360e-06 & 0.9905 & 0.9905 & 5.8720e-06 & 1.7058e-06 \\
 \caption{Quantitative analysis for all the models. The bunny model has large relative error because we find a different combination of scaling and camera parameters which yield small rms error.}
 \label{tb:err}
 \end{table*}
+
+\begin{figure}
+\begin{center}
+	\includegraphics[scale=0.5]{chair-figure.eps}
+\end{center}
+	\caption{The rms error for Chair. The horizontal axis: the number of iterations; The vertical axis: the rms error in pixel.}
+\label{fig:chairplot}
+\end{figure}
 
 \noindent
 In this section we test our algorithms with three models: Chair from ShapeNet~\cite{shapenet2015}, Bunny and Dragon from the Stanford 3D Scanning Repository~\cite{stanford3d2014}. For all the experiments below, we first scale the model by a predefined scaling factor $\mathbf{s}$, then we use PBRT~\cite{pharr2010pbrt} to render a synthetic image. $\mathbf{p}_i$ are all the vertices in the shape, and $\mathbf{q}_i$ are the projected pixel positions of $\mathbf{p}_i$ in the synthetic image. We recover the camera position and the scaling factor, and compare them with the ground truth values.\\
@@ -353,7 +383,7 @@ To evaluate the results qualitatively, we also blend the projection of the model
 
 \begin{figure*}
 \begin{center}
-	\includegraphics[scale=0.45]{image-shape.eps}
+	\includegraphics[scale=0.4]{image-shape.eps}
 \end{center}
    \caption{The synthetic image and the original models used in the experiments. Top: synthetic images for scaled chair, bunny and dragon model; Bottom: the original chair, bunny and dragon model.}
 \label{fig:imageshape}
@@ -367,29 +397,7 @@ Figure ~\ref{fig:chairgrid} shows the overlap between optimized chair models and
 
 \begin{figure}[t]
 \begin{center}
-	\includegraphics[scale=0.55]{chair-figure.eps}
-\end{center}
-	\caption{The rms error for Chair. The horizontal axis: the number of iterations; The vertical axis: the rms error in pixel.}
-\label{fig:chairplot}
-\end{figure}
-
-\begin{figure*}
-\begin{center}
-	\includegraphics[scale=0.45]{chair-grid.eps}
-\end{center}
-   \caption{Blending the optimized chair model and the synthetic image in 8 iterations. Top row: iteration 0, 1, 2, 5; Bottom row: iteration 10, 50, 150, 180.}
-\label{fig:chairgrid}
-\end{figure*}
-
-\noindent
-\textbf{Bunny} The synthetic image and the original bunny is displayed in Figure ~\ref{fig:imageshape}. We set $\mathbf{s}_g=[1.25, 0.8, 1.1]^\top$ in this example. It takes only 4 iterations for the algorithm to converge. The rms error in each iteration is plotted in Figure ~\ref{fig:bunnyplot}.\\
-
-\noindent
-One notable difference between Bunny and Chair is that Bunny does not converge to the ground truth parameters. Nevertheless, we manage to find another combination of scaling factor and camera parameters that works well for matching the images and the bunny. This phenomenon again indicates that our image-shape matching problem is under-determinant.
-
-\begin{figure}[t]
-\begin{center}
-	\includegraphics[scale=0.55]{bunny-figure.eps}
+	\includegraphics[scale=0.5]{bunny-figure.eps}
 \end{center}
 	\caption{The rms error for Bunny. The horizontal axis: the number of iterations; The vertical axis: the rms error in pixel.}
 \label{fig:bunnyplot}
@@ -397,30 +405,44 @@ One notable difference between Bunny and Chair is that Bunny does not converge t
 
 \begin{figure*}
 \begin{center}
-	\includegraphics[scale=0.45]{bunny-grid.eps}
+	\includegraphics[scale=0.4]{chair-grid.eps}
 \end{center}
-   \caption{Blending the optimized chair model and the synthetic image in iteration 0, 1, 2, 4.}
-\label{fig:bunnygrid}
+   \caption{Blending the optimized chair model and the synthetic image in 8 iterations. Top row: iteration 0, 1, 2, 5; Bottom row: iteration 10, 50, 150, 180.}
+\label{fig:chairgrid}
 \end{figure*}
 
-\noindent
-\textbf{Dragon} Figure ~\ref{fig:imageshape} displays the synthetic dragon image and the orginal dragon model. We set $\mathbf{s}_g=[1.3, 0.7, 0.9]^\top$ in this example. The algorithm terminates in 78 iterations. The rms error in each iteration is plotted in Figure ~\ref{fig:dragonplot}. As in the previous examples we present the overlap between models and images in Figure ~\ref{fig:dragongrid}. Unlike the Chair and Bunny example, it takes much more iterations to register the model with the image. This is as expected since the dragon contains much more fine-grained details.
-
-\begin{figure}[t]
+\begin{figure}[b]
 \begin{center}
-	\includegraphics[scale=0.55]{dragon-figure.eps}
+	\includegraphics[scale=0.5]{dragon-figure.eps}
 \end{center}
 	\caption{The rms error for Dragon. The horizontal axis: the number of iterations; The vertical axis: the rms error in pixel.}
 \label{fig:dragonplot}
 \end{figure}
 
-\begin{figure*}
+\noindent
+\textbf{Bunny} The synthetic image and the original bunny is displayed in Figure ~\ref{fig:imageshape}. We set $\mathbf{s}_g=[1.25, 0.8, 1.1]^\top$ in this example. It takes only 4 iterations for the algorithm to converge. The rms error in each iteration is plotted in Figure ~\ref{fig:bunnyplot}.\\
+
+\noindent
+One notable difference between Bunny and Chair is that Bunny does not converge to the ground truth parameters. Nevertheless, we manage to find another combination of scaling factor and camera parameters that works well for matching the images and the bunny. This phenomenon again indicates that our image-shape matching problem is under-determinant.
+
+\begin{figure*}[t]
 \begin{center}
-	\includegraphics[scale=0.45]{dragon-grid.eps}
+	\includegraphics[scale=0.4]{bunny-grid.eps}
+\end{center}
+   \caption{Blending the optimized chair model and the synthetic image in iteration 0, 1, 2, 4.}
+\label{fig:bunnygrid}
+\end{figure*}
+
+\begin{figure*}[t]
+\begin{center}
+	\includegraphics[scale=0.4]{dragon-grid.eps}
 \end{center}
    \caption{Blending the optimized dragon model and the synthetic image in 8 iterations. Top row: iteration 0, 1, 2, 5; Bottom row: iteration 10, 25, 50, 78.}
 \label{fig:dragongrid}
 \end{figure*}
+
+\noindent
+\textbf{Dragon} Figure ~\ref{fig:imageshape} displays the synthetic dragon image and the orginal dragon model. We set $\mathbf{s}_g=[1.3, 0.7, 0.9]^\top$ in this example. The algorithm terminates in 78 iterations. The rms error in each iteration is plotted in Figure ~\ref{fig:dragonplot}. As in the previous examples we present the overlap between models and images in Figure ~\ref{fig:dragongrid}. Unlike the Chair and Bunny example, it takes much more iterations to register the model with the image. This is as expected since the dragon contains much more fine-grained details.
 
 %------------------------------------------------------------------------
 \section{Conclusion}
