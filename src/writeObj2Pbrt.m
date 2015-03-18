@@ -31,10 +31,9 @@ face = mat2str(F);
 face = strrep(face, ';', '\n');
 shape = [shape, face, '\n', ...
          'AttributeEnd\n\n'];
-context = [shape 'WorldEnd\n'];
-
+     
 % Write back the context.
-fprintf(fid, context);
+fprintf(fid, shape);
 
 % Close the file.
 fclose(fid);

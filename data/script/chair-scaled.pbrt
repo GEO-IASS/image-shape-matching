@@ -1,0 +1,28 @@
+Film "image" "integer xresolution" [640] "integer yresolution" [480]
+
+LookAt 0.2           0.3        -0.7 0  0  0 0  1  0
+Camera "perspective" "float fov" [75]
+
+WorldBegin
+
+AttributeBegin
+LightSource "point" "point from" [0.3 0.3 -0.3] "rgb I" [0.8 0.2 0.4]
+AttributeEnd
+
+AttributeBegin
+# Ground.
+Material "matte" "color Kd" [.4 .42 .4]
+Shape "trianglemesh" "point P"
+[2.5 -0.2885 1.5
+ 2.5 -0.2885 -1.5
+ -10 -0.2885 1.5
+ -10 -0.2885 -1.5
+ 2.5 10 1.5
+ -10 10 1.5]
+  "integer indices" [0 2 1 1 2 3 0 4 2 2 4 5]
+AttributeEnd
+
+Material "matte" "color Kd" [.4 .42 .4]
+Include "geometry/chair-scaled.pbrt"
+
+WorldEnd

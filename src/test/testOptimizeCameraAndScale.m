@@ -9,13 +9,14 @@ clear all; clc;
 
 % Read V and F from .obj files.
 [V, F] = readObj('data/chair.obj');
-V = alignObj(V);
+% Shift the chair by the mean.
+V = bsxfun(@minus, V, mean(V, 1));
 
 % Define the image size.
 imageSize = [640 480]';
 
 % Define the camera parameters.
-cameraPos = [0.2 0 -0.7]';
+cameraPos = [0.2 0.3 -0.7]';
 cameraLookAt = [0 0 0]';
 cameraUp = [0 1 0]';
 fov = 75;
