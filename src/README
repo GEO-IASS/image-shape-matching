@@ -1,6 +1,10 @@
 Tao Du
 taodu@stanford.edu
-Feb 13, 2015
+Last updated on Mar 19, 2015
+
+================================================================================
+Specification for the coordinate systems
+================================================================================
 
 A short review for all the coordinates system in the source codes:
 Model coordinates: Defined by the .obj file.
@@ -16,3 +20,24 @@ Lower right: (w, h).
 Ginput coordinates: coordinates used when we call [x, y] = ginput. This is almost the same as the image coordinates, except that the origin is shifted by (0.5, 0.5). i.e., the origin of the image coordinates is at (0.5, 0.5) in the ginput coordinates. However, the results of ginput may be clamped already, so it is unclear how to deal with it correctly. In our implementation, we will first locate the pixel when ginput is called, then simply use the center of the pixel.
 
 Pixel coordinates: A 2D coordinates with only integer values (i, j), where i is the row number and j is the column number. The top left pixel (1, 1) covers the [0, 1) x [0, 1) square in the image coordinates. To access the pixel (i, j), you can call I(i, j) where I is from imread or similar functions.
+
+================================================================================
+Files and folders
+================================================================================
+Folders:
+/3rdparty: This folder contains the exr reader and writer functions from Micah Kimo Johnson in MIT: http://www.mit.edu/~kimo/software/matlabexr/
+/cpp: This folder contains the cpp code for implementing a ray tracer, but it is not used in our code right now.
+/test: This folder provides test scripts for most of the functions we implemented. They also show you how to use our functions.
+/test/data: This folder contains some simple models used in the tests.
+
+Files:
+All of the functions contain enough comments to explain usage, input and output. Please feel free to email me if you find something unclear or wrong.
+
+Right now we have 4 scripts in this folder. Please run initPath before running any other scripts. This will add the whole project into search path.
+
+We suggest you start with reading any of the example scripts before running them.If you want to see the results rendered by PBRT, please modify the PBRT path in these scripts before running the script.
+
+================================================================================
+Want to know more?
+================================================================================
+Please read ../report/report.pdf for the math and experimental results.

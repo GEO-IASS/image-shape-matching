@@ -1,12 +1,19 @@
-Image Shape Matching
+Image Shape Matching with Shape Deformation
 
 Tao Du
 taodu@stanford.edu
-Feb 11, 2015
+Last Updated on Mar 19, 2015
 
-src/: source codes.
-  - src/cpp/: cpp codes, if necessary.
+================================================================================
+Folders and Files
+================================================================================
 
-data/: images and shapes.
-  - data/image/: 2D images.
-  - data/shape/: 3D shapes.
+/data: Contains the images, shapes and rendering scripts in our project.
+/data/image: 2D images.
+/data/script: Rendering scripts used in PBRT.
+/data/script/geometry: PBRT files for triangle meshes.
+/data/shape: 3D shapes.
+
+/src: Source codes. See /src/README for details.
+
+/report: Contains the LaTeX files for the project report.
