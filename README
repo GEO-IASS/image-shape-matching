@@ -10,6 +10,7 @@ Folders and Files
 
 /data: Contains the images, shapes and rendering scripts in our project.
 /data/image: 2D images.
+/data/pascal: Keypoint names for models in Beyond PASCAL. See instructions below.
 /data/script: Rendering scripts used in PBRT.
 /data/script/geometry: PBRT files for triangle meshes.
 /data/shape: 3D shapes.
@@ -17,3 +18,109 @@ Folders and Files
 /src: Source codes. See /src/README for details.
 
 /report: Contains the LaTeX files for the project report.
+
+================================================================================
+Data from Beyond PASCAL
+================================================================================
+
+The dataset Beyond PASCAL can be downloaded from:
+http://cvgl.stanford.edu/projects/pascal3d.html
+The version we use is release1.1 ~ 7.5GB(PASCAL VOC 2012 and ImageNet images and annotations, 3D CAD models, annotation tool, VDPM code, and segmentation code)
+
+The directory structure for Beyond PASCAL can be found in its README. The folders we are interested in include:
+/Annotations: The folder name is defined as Shape_Imageset, where Shape\in \{aeroplane, bicycle, boat, bottle, bus, car, chair, diningtable, motorbike, sofa, train, tvmonitor\}, and Imageset\in \{imagenet, pascal\}.
+
+Within each folder, there is a .mat data file for every image. For example: /Annotations/aeroplane_imagenet/n02690373_16.mat contains the annotation data for the image /Images/aeroplane_imagenet/n02690373_16.JPEG.
+
+Each .mat file contains a struct variable "record":
+record =
+
+    filename: 'n02690373_16.JPEG'
+     objects: [1x1 struct]
+        size: [1x1 struct]
+     imgsize: [500 333 3]
+    database: 'ImageNet'
+
+"filename" gives us the image file name;
+"size" stores the width, height and the depth(number of channels) in the image. This is the same as the following "imgsize";
+"imgsize" defines [width, height, #channel] of the image;
+"database" tells us which image set this data comes from;
+
+The most complicated struct "objects" is defined as follows:
+record.objects =
+
+    class: 'aeroplane'
+     bbox: [4.7768 53.0809 497.0008 286.3624]
+  anchors: [1x1 struct]
+viewpoint: [1x1 struct]
+cad_index: 1
+  subtype: 'airliner'
+truncated: 0
+ occluded: 0
+difficult: 0
+
+We only care about "class", "anchors" and "cad_index".
+
+"class" defines the type of the CAD model in this image.
+"cad_index" is the index of the CAD model. For example, we have 8 different aeroplane models, cad_index tells us which model is used to match the aeroplane in the image. cad_index starts from 1.
+
+Finally let's take a look at "anchors":
+record.objects.anchors =
+
+    left_elevator: [1x1 struct]
+        left_wing: [1x1 struct]
+      noselanding: [1x1 struct]
+   right_elevator: [1x1 struct]
+       right_wing: [1x1 struct]
+     rudder_lower: [1x1 struct]
+     rudder_upper: [1x1 struct]
+             tail: [1x1 struct]
+
+"anchors" contains the 8 keypoints for the aeroplane class. Each CAD type has different number of keypoints, with different names. We will review this in /CAD folder. Here the eight struct contains the location and the status of the keypoint in the image:
+record.objects.anchors.left_elevator =
+
+    location: [26.7520 252.6535]
+      status: 1
+
+"location" is the pixel location of the keypoint in the image. "status" shows whether this keypoint is visible. Specifically:
+status = 1: Visible;
+status = 2: Self-occluded;
+status = 3: Occluded-by;
+status = 4: Truncated;
+status = 5: Unknown.
+To conclude, we should only use keypoints whose status = 1. The last question is the coordinates used in "location". It turns out the origin is at the top left corner of the image, and the x axis is from left to right, and the y axis is from top to bottom. In our project we assume "location" is defined in the image coordinates (See README in /src for our convention for all the coordinates in the project).
+
+/CAD: This folder contains the 12 models used in Beyond PASCAL. Remember we can access the class name from the .mat file in /Annotations. Each class has its own .mat file, and a folder. For example, for the aeroplane class, we have /CAD/aeroplane and /CAD/aeroplane.mat.
+/CAD/aeroplane: This folder contains 8 .off files. We can read from this files the vertices and faces of each aeroplane model. However, we can access all the information directly from the .mat file, so usually we don't need to visit this folder.
+/CAD/aeroplane.mat: This is a 1 x 8 struct variable:
+aeroplane =
+
+1x8 struct array with fields:
+
+    vertices
+    faces
+    ...
+    left_elevator
+    left_wing
+    noselanding
+    right_elevator
+    right_wing
+    rudder_lower
+    rudder_upper
+    tail
+    ...
+
+So vertices and faces can be accessed directly from aeroplane.mat. "faces" start from 1, so it can be used directly in our project, without shifting by 1.
+
+The remaining 8 fields store the positions of the keypoints for each aeroplane model. For example:
+aeroplane(1).left_elevator =
+
+    -0.1206   0.3537    -0.0199
+
+So the last question is that how could we find these names for each model. Unfortunately, these are hard-coded in Beyond PASCAL, so we also hard code them in our project.
+
+/Images: As explained in /Annotations, /Images stores all the images used in the matching task. Assume we are given a .mat file:
+/Annotations/aeroplane_imagenet/n02690373_16.mat
+We can access the corresponding image in:
+/Images/aeroplane_imagenet/n02690373_16.JPEG
+
