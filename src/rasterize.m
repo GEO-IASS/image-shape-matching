@@ -46,6 +46,12 @@ for i = 1 : n
   wmin = max(floor(min(p(:, 1))) + 1, 1);
   wmax = min(floor(max(p(:, 1))) + 1, w);
 
+  % If hmax < hmin or wmax < wmin, the bounding box does not intersect with
+  % the image.
+  if hmax < hmin || wmax < wmin
+    continue;
+  end
+
   % So now I(hmin : hmax, wmin : wmax) safely covers the triangle.
   % Generate the center of the pixels.
   [X, Y] = meshgrid(wmin : wmax, hmin : hmax);

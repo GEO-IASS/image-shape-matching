@@ -79,8 +79,6 @@ subplot(1, 2, 2); imshow(originImage); title('model');
 
 % Display the intermediate results.
 maxIters = length(rms2);
-
-% To display the original model, we need to add [1 1 1]' into s2.
 s2 = [[1 1 1]' s2];
 iters = [1 iters maxIters];
 numIters = length(iters);

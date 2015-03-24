@@ -3,7 +3,7 @@
 % Mar 23, 2015
 
 % Clear.
-clear all; clc;
+clear all; clc; close all;
 PASCAL_ROOT = '/home/taodu/research/pascal/';
 
 % Please comment out optimizeCameraAndScale in the function as we do not
@@ -17,8 +17,16 @@ load([PASCAL_ROOT, 'Annotations/aeroplane_imagenet/n02690373_101.mat']);
 cadId = record.objects(1).cad_index;
 % End of Initialization.
 
-[featureImage, featureVertex] = ...
+[I, V, F, featureImage, featureVertex] = ...
     optimizePascalExample(modelName, imagesetName, fileName);
+
+% Test the image.
+figure;
+imshow(I);
+
+% Test the model.
+figure;
+trimesh(F, V(:, 1), V(:, 2), V(:, 3));
 
 % Compare featureImage.
 fprintf('featureImage = \n');

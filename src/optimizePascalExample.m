@@ -1,4 +1,4 @@
-function [ featureImage, featureVertex, M2V, V2P, s, rms ] = ...
+function [ I, V, F, featureImage, featureVertex, M2V, V2P, s, rms ] = ...
   optimizePascalExample( modelName, imagesetName, fileName)
 % Tao Du
 % taodu@stanford.edu
@@ -9,7 +9,9 @@ function [ featureImage, featureVertex, M2V, V2P, s, rms ] = ...
 % Input: modelName: a string like 'aeroplane'.
 %        imagesetName: a string like 'imagenet'.
 %        fileName: a string like 'n02690373_16.mat'.
-% Output: featureImage: n x 2 matrix.
+% Output: I: image we want to match, guaranteed to be double.
+%         V, F: shape we want to match.
+%         featureImage: n x 2 matrix.
 %         featureVertex: n x 3 matrix.
 %         M2V: 4 x 4 matrix.
 %         V2P: 3 x 3 matrix.
@@ -19,6 +21,11 @@ function [ featureImage, featureVertex, M2V, V2P, s, rms ] = ...
 
 % Initialize the PASCAL root.
 PASCAL_ROOT = '/home/taodu/research/pascal/';
+
+% Read the image we want to match.
+I = imread([PASCAL_ROOT, 'Images/', modelName, '_', imagesetName, '/', ...
+            fileName, '.JPEG']);
+I = im2double(I);
 
 % Load the annotation record.
 load([PASCAL_ROOT, 'Annotations/', modelName, '_', imagesetName, ...
@@ -60,6 +67,7 @@ end
 % Extract the model ID.
 modelId = record.objects(1).cad_index;
 featureVertex = readFeatureVertexFromPascal(modelName, modelId);
+[V, F] = readObjFromPascal(modelName, modelId);
 
 % Filter out bad correspondences.
 featureImage = featureImage(status == 1, :);
