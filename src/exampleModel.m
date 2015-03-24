@@ -2,40 +2,22 @@
 % taodu@stanford.edu
 % Mar 17, 2015
 
-% Run this script for the chair example.
+% Run this script for different models. Currently we have three models:
+% chair, bunny and dragon. For each model, we have a corresponding script
+% initExampleChair/initExampleBunny/initExampleDragon.
 
 % Clear.
-clear all; clc;
+clear all; clc; close all;
 PROJECT_ROOT = '/home/taodu/research/image-shape-matching/';
 
-%% Initialization. Change this for different shapes.
-shapeName = 'dragon';
-
-% The following values are used for rendering. Keep in mind they should be
-% consistent with what we provide in the pbrt script in ./data/script.
-imageSize = [640 480]';  % Image size.
-cameraPos = [-0.15 0.12 0.17]';  % Camera position.
-cameraLookAt = [0 0 0]';  % Camera lookAt point
-cameraUp = [0 1 0]';  % Camera up direction
-fov = 75;  % Field of view.
-
-% The (groundtruth) scaling factor.
-s = [1.3; 0.7; 0.9];
-
-% The iterations we are interested in. The first and the last iterations
-% will be added into iters automatically.
-iters = [1, 2, 5, 10, 25, 50];
-
-% The row and column in the grid we want to display the results.
-rowInGrid = 2;
-colInGrid = 4;
-
-% The color used in displaying the results.
-overlapColor = [0.2 0.3 0.7];
+%% Load the example you are intersted in.
+initExampleChair;
+% initExampleBunny;
+% initExampleDragon;
 
 %% Read data and optimization.
 [V, F] = readObj([PROJECT_ROOT, 'data/shape/', shapeName, '.obj']);
-% Shift the chair by the mean.
+% Shift the model by the mean.
 V = bsxfun(@minus, V, mean(V, 1));
 
 % Define the lighting.
@@ -60,7 +42,7 @@ featureImage = model2Image(featureVertex, M2V, V2P);
 %% Display the results.
 % A iter-rms plot.
 figure;
-plot(rms2);
+plot(1 : length(rms2), rms2);
 xlabel('iteration'); ylabel('rms');
 title('rms vs iteration');
 
@@ -100,7 +82,7 @@ maxIters = length(rms2);
 
 % To display the original model, we need to add [1 1 1]' into s2.
 s2 = [[1 1 1]' s2];
-iters = [0 iters maxIters] + 1;
+iters = [1 iters maxIters];
 numIters = length(iters);
 
 % Now let's get the size of the image.
@@ -113,13 +95,20 @@ grid = zeros(r * rowInGrid, c * colInGrid, 3);
 % Overlap the intermediate shapes and the original image.
 for i = 1 : numIters
   iter = iters(i);
+  % scaleFactor is the scaling factor BEFORE the iteration we are
+  % interested in.
   scaleFactor = s2(:, iter);
 
-  % Compute the scaled shape first.
+  % Compute the scaled shape first. This is the shape BEFORE we enter the
+  % iteration we are interested in.
   V3 = bsxfun(@times, V, scaleFactor');
 
-  % Compute the optimized M2V and V2P for this iteration.
+  % Compute the optimized M2V and V2P for this iteration. This is the
+  % camera matrix AFTER the iteration we are interested in.
   [M2V3, V2P3] = optimizeCamera(featureImage, V3);
+
+  % Next, let's compute the shape AFTER the iteration.
+  V3 = bsxfun(@times, V, s2(:, iter + 1)');
 
   % Now let's compute the projection image.
   projected = rasterize(V3, F, M2V3, V2P3, imageSize);
@@ -138,7 +127,7 @@ for i = 1 : numIters
   % Display the overlapped image.
   figure;
   imshow(I);
-  title(['iter ', num2str(iter - 1)]);
+  title(['after iter ', num2str(iter)]);
 end
 
 % Display the grid.
